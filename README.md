@@ -1,4 +1,4 @@
-# Soundgasm Extractor
+# SoundCloud Extractor
 
 This is a reworked Soundcloud extractor inspired from the original one at [discord-player/extractors](SoundCloudExtractor).
 
