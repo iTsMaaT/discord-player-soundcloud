@@ -42,8 +42,7 @@ export class SoundCloudExtractor extends BaseExtractor<SoundCloudExtractorInit> 
     }
 
     async validate(query: string): Promise<boolean> {
-        return typeof query === "string" &&
-            [soundcloudTrackRegex, soundcloudShortenedTrackRegex, soundcloudPlaylistRegex].some(regex => regex.test(query));
+        return [soundcloudTrackRegex, soundcloudShortenedTrackRegex, soundcloudPlaylistRegex].some(regex => regex.test(query));
     }
 
     async getRelatedTracks(track: Track, history: GuildQueueHistory) {
@@ -96,7 +95,7 @@ export class SoundCloudExtractor extends BaseExtractor<SoundCloudExtractorInit> 
 
             const playlist = this.buildPlaylist(data, context);
 
-            return this.createResponse(null, playlist.tracks);
+            return this.createResponse(playlist, playlist.tracks);
         }
 
         if (soundcloudTrackRegex.test(query) || soundcloudShortenedTrackRegex.test(query)) {
