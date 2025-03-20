@@ -21,7 +21,7 @@ const isUrl = (query: string): boolean => {
     }
 };
 
-export interface SoundCloudExtractorInit {
+export interface SoundcloudExtractorInit {
     clientId?: string;
     oauthToken?: string;
     proxy?: string;
@@ -33,20 +33,20 @@ const filterSoundCloudPreviews = (tracks: SoundcloudTrack[],
     return filtered.length > 0 ? filtered : tracks;
 };
 
-export class SoundCloudExtractor extends BaseExtractor<SoundCloudExtractorInit> {
+export class SoundcloudExtractor extends BaseExtractor<SoundcloudExtractorInit> {
     static identifier = "com.discord-player.soundcloudextractor";
-    static instance: SoundCloudExtractor | null = null;
+    static instance: SoundcloudExtractor | null = null;
 
     public internal = new Soundcloud(this.options.clientId, this.options.oauthToken);
 
     async activate() {
         this.protocols = ["scsearch", "soundcloud"];
-        SoundCloudExtractor.instance = this;
+        SoundcloudExtractor.instance = this;
     }
 
     async deactivate() {
         this.protocols = [];
-        SoundCloudExtractor.instance = null;
+        SoundcloudExtractor.instance = null;
     }
 
     async validate(query: string): Promise<boolean> {
