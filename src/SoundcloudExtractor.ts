@@ -123,16 +123,34 @@ export class SoundcloudExtractor extends BaseExtractor<SoundcloudExtractorInit> 
         };
     }
 
-    async bridge(track: Track): Promise<ExtractorStreamable | null> {
-        const query = `${track.author} ${track.source === "youtube" ? track.cleanTitle : track.title}`;
-        let scTracks = await this.internal.tracks.search({ q: query }).then(t => t.collection).catch(() => []);
+    public async bridge(
+        track: Track,
+        sourceExtractor: BaseExtractor | null,
+    ): Promise<ExtractorStreamable | null> {
+        if (sourceExtractor?.identifier === this.identifier) 
+            return this.stream(track);
+        
     
-        if (!scTracks.length) scTracks = await this.internal.tracks.searchAlt(query).catch(() => []);
-        if (!scTracks.length) return null;
+        const query =
+          sourceExtractor?.createBridgeQuery(track) ??
+          `${track.author} - ${track.title}`;
     
-        return filterSoundCloudPreviews(scTracks).filter(t => t.streamable)[0].permalink_url;
+        const info = await this.handle(query, {
+            requestedBy: track.requestedBy,
+        });
+    
+        if (!info.tracks.length) return null;
+    
+        const result = await this.stream(info.tracks[0]);
+    
+        if (result) {
+            track.bridgedTrack = info.tracks[0];
+            track.bridgedExtractor = this;
+        }
+    
+        return result;
     }
-
+    
     async stream(info: Track): Promise<ExtractorStreamable> {
         if (!(info instanceof Track)) throw new Error("Invalid track object");
         const url = await this.internal.util.streamLink(info.url).catch(() => null);
