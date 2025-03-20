@@ -13,6 +13,14 @@ const soundcloudTrackRegex = /^(https?:\/\/(m\.|www\.)?soundcloud\.com\/([\w-]+)
 const soundcloudShortenedTrackRegex = /^https:\/\/on\.soundcloud\.com\/[a-zA-Z1-9]{0,17}$/;
 const soundcloudPlaylistRegex = /^(https?:\/\/(m\.|www\.)?soundcloud\.com\/([\w-]+)\/sets\/([\w-]+)(.+)?)$/;
 
+const isUrl = (query: string): boolean => {
+    try {
+        return ["http:", "https:"].includes(new URL(query).protocol);
+    } catch {
+        return false;
+    }
+};
+
 export interface SoundCloudExtractorInit {
     clientId?: string;
     oauthToken?: string;
@@ -42,7 +50,8 @@ export class SoundCloudExtractor extends BaseExtractor<SoundCloudExtractorInit> 
     }
 
     async validate(query: string): Promise<boolean> {
-        return [soundcloudTrackRegex, soundcloudShortenedTrackRegex, soundcloudPlaylistRegex].some(regex => regex.test(query));
+        return !isUrl(query) ||
+            [soundcloudTrackRegex, soundcloudShortenedTrackRegex, soundcloudPlaylistRegex].some(regex => regex.test(query));
     }
 
     async getRelatedTracks(track: Track, history: GuildQueueHistory) {
@@ -88,7 +97,6 @@ export class SoundCloudExtractor extends BaseExtractor<SoundCloudExtractorInit> 
     }
 
     async handle(query: string, context: ExtractorSearchContext) {
-
         if (soundcloudPlaylistRegex.test(query)) {
             const data = await this.internal.playlists.get(query).catch(() => null);
             if (!data) return this.createResponse();
@@ -117,10 +125,10 @@ export class SoundCloudExtractor extends BaseExtractor<SoundCloudExtractorInit> 
     async bridge(track: Track): Promise<ExtractorStreamable | null> {
         const query = `${track.author} ${track.source === "youtube" ? track.cleanTitle : track.title}`;
         let scTracks = await this.internal.tracks.search({ q: query }).then(t => t.collection).catch(() => []);
-
+    
         if (!scTracks.length) scTracks = await this.internal.tracks.searchAlt(query).catch(() => []);
         if (!scTracks.length) return null;
-
+    
         return filterSoundCloudPreviews(scTracks).filter(t => t.streamable)[0].permalink_url;
     }
 
