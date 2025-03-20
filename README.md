@@ -28,3 +28,5 @@ await player.extractors.register(SoundcloudExtractor, { /* options */ });
 | --- | --- | --- | --- |
 | clientId | string | null | Your SoundCloud client ID |
 | oauthToken | string | null | Your SoundCloud OAuth token |
+
+> ⚠️ **Warning:** Playlists are not supported yet, they will only play the first track. If you know of a fix, please open an issue or a PR.

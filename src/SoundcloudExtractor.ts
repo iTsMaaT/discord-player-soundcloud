@@ -103,7 +103,8 @@ export class SoundCloudExtractor extends BaseExtractor<SoundCloudExtractorInit> 
 
             const playlist = this.buildPlaylist(data, context);
 
-            return this.createResponse(playlist, playlist.tracks);
+            // Temporary not working, plays only the first track
+            return this.createResponse(null, playlist.tracks);
         }
 
         if (soundcloudTrackRegex.test(query) || soundcloudShortenedTrackRegex.test(query)) {
