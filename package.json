@@ -1,6 +1,6 @@
 {
   "name": "discord-player-soundcloud",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A Soundcloud extractor for discord-player",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
