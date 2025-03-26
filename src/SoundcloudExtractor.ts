@@ -63,18 +63,22 @@ export class SoundcloudExtractor extends BaseExtractor<SoundcloudExtractorInit> 
     }
 
     buildPlaylist(data: SoundcloudPlaylist, context: ExtractorSearchContext): Playlist {
-        return new Playlist(this.context.player, {
+        const playlist = new Playlist(this.context.player, {
             title: data.title,
             description: data.description ?? "",
             thumbnail: data.artwork_url ?? (data.tracks && data.tracks[0]?.artwork_url),
             type: "playlist",
             source: "soundcloud",
             author: { name: data.user.username, url: data.user.permalink_url },
-            tracks: data.tracks.map(song => this.buildTrack(song, context)),
+            tracks: [],
             id: data.id.toString(),
             url: data.permalink_url,
             rawPlaylist: data,
         });
+    
+        playlist.tracks = data.tracks.map(song => this.buildTrack(song, context, playlist));
+    
+        return playlist;
     }
 
     buildTrack(trackInfo: SoundcloudTrack, context: ExtractorSearchContext, playlist?: Playlist): Track {
@@ -103,8 +107,7 @@ export class SoundcloudExtractor extends BaseExtractor<SoundcloudExtractorInit> 
 
             const playlist = this.buildPlaylist(data, context);
 
-            // Temporary not working, plays only the first track
-            return this.createResponse(null, playlist.tracks);
+            return this.createResponse(playlist, playlist.tracks);
         }
 
         if (soundcloudTrackRegex.test(query) || soundcloudShortenedTrackRegex.test(query)) {
