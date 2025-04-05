@@ -1,6 +1,6 @@
 {
   "name": "discord-player-soundcloud",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A Soundcloud extractor for discord-player",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -16,7 +16,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsup src/index.ts --format esm,cjs --dts --out-dir dist",
     "code": "git pull && npm i && code . && eslint src",
-    "c": "npm run code"
+    "c": "npm run code",
+    "prepare": "npm run build"
   },
   "author": "iTsMaaT",
   "license": "MIT",
