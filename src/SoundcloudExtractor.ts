@@ -8,8 +8,7 @@ import {
     ExtractorSearchContext,
     ExtractorStreamable,
 } from "discord-player";
-import { Readable } from "stream";
-import { PassThrough } from "stream";
+import { pipeline, Readable } from "stream";
 
 const soundcloudTrackRegex = /^(https?:\/\/(m\.|www\.)?soundcloud\.com\/([\w-]+)\/([\w-]+)(.+)?)$/;
 const soundcloudShortenedTrackRegex = /^https:\/\/on\.soundcloud\.com\/[a-zA-Z1-9]{0,17}$/;
@@ -156,50 +155,10 @@ export class SoundcloudExtractor extends BaseExtractor<SoundcloudExtractorInit> 
         return result;
     }
 
-
-    /**
- * Wraps a NodeJS.ReadableStream into a standard Readable stream from the stream module.
- * 
- * @param inputStream - A NodeJS.ReadableStream to be converted.
- * @returns A Readable stream from the `stream` module.
- */
-    private toReadable(inputStream: NodeJS.ReadableStream): Readable {
-        if (inputStream instanceof Readable) 
-            return inputStream;
-  
-
-        const readable = new Readable({
-            read() {
-                // This is intentionally left empty because we will push data manually.
-            },
-        });
-
-        inputStream.on("data", (chunk) => {
-            if (!readable.push(chunk)) 
-                inputStream.pause();
-    
-        });
-
-        inputStream.on("end", () => {
-            readable.push(null);
-        });
-
-        inputStream.on("error", (err) => {
-            readable.destroy(err);
-        });
-
-        readable.on("drain", () => {
-            inputStream.resume();
-        });
-
-        return readable;
-    }
-
-    
     async stream(info: Track): Promise<Readable> {
         if (!(info instanceof Track)) throw new Error("Invalid track object");
         const url = await this.internal.util.streamTrack(info.url).catch(() => null);
         if (!url) throw new Error("Could not extract stream from this track source");
-        return this.toReadable(url);
+        return url as Readable;
     }
 }
